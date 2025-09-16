@@ -1,7 +1,5 @@
-
 import streamlit as st
 import requests
-import json
 from datetime import datetime
 
 # Simple page config
@@ -15,12 +13,10 @@ if 'courses' not in st.session_state:
 
 st.title("📚 AI Study Planner")
 
-# Simple API key input
-api_key = st.text_input("Groq API Key", type="password", placeholder="Enter gsk_...")
-
 # Course input
 st.subheader("Add Course")
 col1, col2 = st.columns(2)
+
 with col1:
     course = st.text_input("Course Name", placeholder="e.g., Mathematics")
     deadline = st.date_input("Deadline")
@@ -40,7 +36,7 @@ if st.button("Add") and course and assignment:
 # Show courses
 if st.session_state.courses:
     st.subheader("Your Courses")
-    for i, c in enumerate(st.session_state.courses):
+    for c in st.session_state.courses:
         st.write(f"**{c['course']}**: {c['assignment']} - Due: {c['deadline']} ({c['hours']}h)")
 
 # Study preferences
@@ -48,11 +44,11 @@ st.subheader("Study Preferences")
 hours_per_day = st.slider("Hours per day", 1, 8, 4)
 style = st.selectbox("Study style", ["Focused sessions", "Spaced repetition", "Mixed"])
 
-def call_groq_api(api_key, prompt):
-    """Simple Groq API call"""
+def call_groq_api(prompt):
+    """Simple Groq API call with hardcoded key"""
+    api_key = "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"
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-
     data = {
         "messages": [
             {"role": "system", "content": "You are a study planner. Create clear, actionable study schedules."},
@@ -62,7 +58,6 @@ def call_groq_api(api_key, prompt):
         "temperature": 0.7,
         "max_tokens": 800
     }
-
     try:
         response = requests.post(url, headers=headers, json=data, timeout=20)
         if response.status_code == 200:
@@ -76,26 +71,21 @@ def call_groq_api(api_key, prompt):
 
 # Generate plan
 if st.button("🚀 Generate Study Plan", type="primary"):
-    if not api_key:
-        st.error("Please enter your Groq API key")
-    elif not st.session_state.courses:
+    if not st.session_state.courses:
         st.error("Please add at least one course")
     else:
         # Prepare prompt
         courses_text = ""
         for c in st.session_state.courses:
             courses_text += f"- {c['course']}: {c['assignment']} (Due: {c['deadline']}, {c['hours']} hours)\n"
-
         prompt = f"""Create a study plan for:
 {courses_text}
 Available time: {hours_per_day} hours/day
 Style: {style}
 Current date: {datetime.now().strftime("%Y-%m-%d")}
-
 Provide a weekly schedule with daily tasks and time blocks."""
-
         with st.spinner("Generating plan..."):
-            plan = call_groq_api(api_key, prompt)
+            plan = call_groq_api(prompt)
             if plan:
                 st.session_state.study_plan = plan
 
