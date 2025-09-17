@@ -12,8 +12,6 @@
 ## 🌐 Live Application
 🚀 **Try the Live App:** [https://studyplanner-ai-agent.streamlit.app/](https://studyplanner-ai-agent.streamlit.app/)  
 
-🔑 **Get Free API Key:** [https://console.groq.com/keys](https://console.groq.com/keys) (Required to use the app)
-
 ---
 
 ## 🎯 Project Overview
